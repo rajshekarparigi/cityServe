@@ -1,13 +1,17 @@
-
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://cityserve-server.onrender.com';';
+// Fixed: Use production URL by default, localhost only in development
+const API_URL = process.env.REACT_APP_API_URL || 
+  (process.env.NODE_ENV === 'production' 
+    ? 'https://cityserve-server.onrender.com/api'
+    : 'http://localhost:5000/api');
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: true // Add this for CORS with credentials
 });
 
 // Add token to requests
@@ -20,6 +24,29 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Log error for debugging
+    console.error('API Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: error.response?.data?.message || error.message
+    });
+    
+    // Handle 401 Unauthorized
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    
     return Promise.reject(error);
   }
 );
