@@ -18,7 +18,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'https://cityserve-client.onrender.com',
+  origin: [
+    'https://cityserve-client.onrender.com',
+    'http://localhost:3000'
+  ],
   credentials: true
 }));
 app.use(helmet());
