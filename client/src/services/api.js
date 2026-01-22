@@ -3,7 +3,7 @@ import axios from 'axios';
 // Fixed: Use production URL by default, localhost only in development
 const API_URL = process.env.REACT_APP_API_URL || 
   (process.env.NODE_ENV === 'production' 
-    ? 'https://cityserve-server.onrender.com/api/api'
+    ? 'https://cityserve-server.onrender.com/api'
     : 'http://localhost:5000/api');
 
 const api = axios.create({
