@@ -1,117 +1,133 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const helmet = require('helmet');
-const morgan = require('morgan');
-const connectDB = require('./config/db');
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
 
-// Load env vars
-dotenv.config();
+// Generate JWT Token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d'
+  });
+};
 
-// Connect to database
-connectDB();
+// @desc    Register user
+// @route   POST /api/auth/register
+// @access  Public
+exports.register = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
 
-// Initialize express app
-const app = express();
+    // Check if user exists
+    const userExists = await User.findOne({ email });
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cors({
-  origin: [
-    'https://cityserve-client.onrender.com',
-    'http://localhost:3000'
-  ],
-  credentials: true
-}));
-app.use(helmet());
-
-// Logging middleware
-if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
-}
-
-// DEBUG: Log all requests
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path}`);
-  next();
-});
-
-// Root route
-app.get('/', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'CityServe API',
-    version: '1.0.0',
-    endpoints: {
-      health: '/api/health',
-      auth: '/api/auth',
-      complaints: '/api/complaints'
+    if (userExists) {
+      return res.status(400).json({
+        success: false,
+        message: 'User already exists with this email'
+      });
     }
-  });
-});
 
-// Health check route
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'CityServe API is running',
-    timestamp: new Date().toISOString()
-  });
-});
+    // Create user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      phone
+    });
 
-// Routes
-console.log('📍 Mounting /api/auth routes...');
-app.use('/api/auth', require('./routes/auth'));
+    // Generate token
+    const token = generateToken(user._id);
 
-console.log('📍 Mounting /api/complaints routes...');
-app.use('/api/complaints', require('./routes/complaints'));
-
-// DEBUG: List all registered routes
-console.log('\n📋 Registered routes:');
-app._router.stack.forEach((middleware) => {
-  if (middleware.route) {
-    console.log(`  ${Object.keys(middleware.route.methods)} ${middleware.route.path}`);
-  } else if (middleware.name === 'router') {
-    middleware.handle.stack.forEach((handler) => {
-      if (handler.route) {
-        const path = middleware.regexp.toString().match(/^\/\^\\\/(.+?)\\/)?.[1] || '';
-        console.log(`  ${Object.keys(handler.route.methods)} /${path}${handler.route.path}`);
+    res.status(201).json({
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token
       }
     });
+  } catch (error) {
+    console.error('Register error:', error);
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
   }
-});
-console.log('\n');
+};
 
-// Error handler
-app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.stack);
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || 'Server Error'
-  });
-});
+// @desc    Login user
+// @route   POST /api/auth/login
+// @access  Public
+exports.login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-// 404 handler - MUST BE LAST
-app.use((req, res) => {
-  console.log(`⚠️  404 - Route not found: ${req.method} ${req.path}`);
-  res.status(404).json({
-    success: false,
-    message: 'Route not found'
-  });
-});
+    // Validate email & password
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email and password'
+      });
+    }
 
-// Start server
-const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-});
+    // Check for user (include password for comparison)
+    const user = await User.findOne({ email }).select('+password');
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.log(`❌ Error: ${err.message}`);
-  // Close server & exit process
-  server.close(() => process.exit(1));
-});
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
 
-module.exports = app;
+    // Check if password matches
+    const isMatch = await user.comparePassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
+
+    // Generate token
+    const token = generateToken(user._id);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// @desc    Get current logged in user
+// @route   GET /api/auth/me
+// @access  Private
+exports.getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('GetMe error:', error);
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
