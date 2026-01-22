@@ -1,5 +1,7 @@
 # 🏙️ CityServe
 
+**Live Demo:** [https://cityserve-client.onrender.com/](https://cityserve-client.onrender.com/)
+
 A full-stack web application that bridges the gap between citizens and municipal services. CityServe enables residents to easily request and track local city services while providing administrators with a secure dashboard to manage and monitor all service requests efficiently.
 
 ## 🚀 Tech Stack
@@ -20,8 +22,7 @@ A full-stack web application that bridges the gap between citizens and municipal
 - **MongoDB** - NoSQL database
 
 ### Hosting
-- **Render** - Backend deployment
-- **Vercel** - Frontend deployment (configurable)
+- **Render** - Backend & Frontend deployment
 
 ## ✨ Features
 
@@ -39,7 +40,6 @@ A full-stack web application that bridges the gap between citizens and municipal
 
 ## 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
 - **Node.js** (v14 or higher)
 - **npm** or **yarn**
 - **MongoDB** (local installation or MongoDB Atlas account)
@@ -49,17 +49,17 @@ Before you begin, ensure you have the following installed:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/yourusername/cityserve.git
+git clone https://github.com/rajshekarparigi/cityserve.git
 cd cityserve
 ```
 
 ### 2. Backend Setup
 ```bash
-cd backend
+cd server
 npm install
 ```
 
-Create a `.env` file in the backend directory:
+Create a `.env` file in the server directory:
 ```env
 PORT=5000
 MONGODB_URI=your_mongodb_connection_string
@@ -74,11 +74,11 @@ npm start
 
 ### 3. Frontend Setup
 ```bash
-cd frontend
+cd client
 npm install
 ```
 
-Create a `.env` file in the frontend directory:
+Create a `.env` file in the client directory:
 ```env
 REACT_APP_API_URL=http://localhost:5000/api
 ```
@@ -96,9 +96,7 @@ The application should now be running at `http://localhost:3000`
 cityServe/
 │
 ├── client/                          # Frontend Application
-│   ├── node_modules/
 │   ├── public/
-│   │   └── index.html
 │   ├── src/
 │   │   ├── components/             # Reusable UI Components
 │   │   │   ├── ComplaintCard.js
@@ -115,8 +113,6 @@ cityServe/
 │   │   │   └── Register.js
 │   │   └── services/               # API Integration
 │   │       └── api.js
-│   ├── .gitignore
-│   ├── package-lock.json
 │   ├── package.json
 │   └── tailwind.config.js          # Tailwind CSS Configuration
 │
@@ -134,48 +130,20 @@ cityServe/
 │   ├── routes/                     # API Routes
 │   │   ├── auth.js
 │   │   └── complaints.js
-│   ├── node_modules/
-│   ├── .env                        # Environment Variables
-│   ├── .gitignore
-│   ├── package-lock.json
-│   ├── package.json
-│   ├── postcss.config.js
 │   ├── seed.js                     # Database Seeding Script
-│   ├── server.js                   # Server Entry Point
-│                 
+│   └── server.js                   # Server Entry Point
 │
-├── .env
-├── .gitignore
-├── package-lock.json
-├── package.json
-├── README.md
 └── README.md
 ```
 
 ## 🚀 Deployment
 
-### Backend (Render)
+### Render Deployment
 1. Push your code to GitHub
 2. Connect your repository to Render
-3. Create a new Web Service
-4. Configure the following:
-   - **Build Command**: `npm install`
-   - **Start Command**: `node server.js`
-5. Add environment variables in Render dashboard:
-   - `MONGODB_URI`
-   - `JWT_SECRET`
-   - `NODE_ENV=production`
-6. Deploy the service
-
-### Frontend (Vercel)
-1. Push your code to GitHub
-2. Import project in Vercel
-3. Configure:
-   - **Framework Preset**: Create React App
-   - **Root Directory**: `frontend`
-4. Add environment variables:
-   - `REACT_APP_API_URL` (your Render backend URL)
-5. Deploy the application
+3. Create Web Services for both frontend and backend
+4. Add environment variables in Render dashboard
+5. Deploy the services
 
 ## 🔐 Environment Variables
 
@@ -184,48 +152,23 @@ cityServe/
 PORT=5000
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/cityserve
 JWT_SECRET=your_super_secret_jwt_key_here
-NODE_ENV=development
+NODE_ENV=production
 ```
 
 ### Frontend (.env)
 ```env
-REACT_APP_API_URL=http://localhost:5000/api
+REACT_APP_API_URL=https://your-backend-url.onrender.com/api
 ```
-
-For production, update `REACT_APP_API_URL` to your deployed backend URL.
 
 ## 📝 API Endpoints
 
 ### Authentication
 - `POST /api/auth/register` - Register new user
-  ```json
-  {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "password": "password123"
-  }
-  ```
 - `POST /api/auth/login` - User login
-  ```json
-  {
-    "email": "john@example.com",
-    "password": "password123"
-  }
-  ```
 
 ### Service Requests (Protected)
 - `GET /api/requests` - Get user's requests
 - `POST /api/requests` - Create new request
-  ```json
-  {
-    "serviceType": "Road Repair",
-    "description": "Pothole on Main Street",
-    "location": {
-      "address": "123 Main St",
-      "coordinates": [40.7128, -74.0060]
-    }
-  }
-  ```
 - `GET /api/requests/:id` - Get specific request
 - `PUT /api/requests/:id` - Update request
 - `DELETE /api/requests/:id` - Delete request
@@ -233,31 +176,12 @@ For production, update `REACT_APP_API_URL` to your deployed backend URL.
 ### Admin (Protected - Admin Only)
 - `GET /api/admin/requests` - Get all requests
 - `PUT /api/admin/requests/:id/status` - Update request status
-  ```json
-  {
-    "status": "approved"
-  }
-  ```
 - `GET /api/admin/stats` - Get dashboard statistics
 
 ## 🔑 User Roles
 
 - **Citizen**: Can create, view, and manage their own service requests
 - **Admin**: Can view all requests, approve/reject, and manage service statuses
-
-## 🧪 Testing
-
-### Backend Tests
-```bash
-cd backend
-npm test
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm test
-```
 
 ## 🤝 Contributing
 
@@ -269,47 +193,15 @@ Contributions are welcome! Please follow these steps:
 4. Push to the branch (`git push origin feature/YourFeature`)
 5. Open a Pull Request
 
-### Code Style Guidelines
-- Use ES6+ JavaScript features
-- Follow Airbnb JavaScript Style Guide
-- Write meaningful commit messages
-- Add comments for complex logic
-- Ensure all tests pass before submitting PR
+## 👥 Author
 
-## 🐛 Known Issues
-
-- Map markers may not load on slow connections
-- Email notifications are not yet implemented
-
-## 🗺️ Roadmap
-
-- [ ] Email notifications for request status updates
-- [ ] Mobile app (React Native)
-- [ ] Real-time chat support
-- [ ] Payment integration for paid services
-- [ ] Advanced analytics dashboard
-- [ ] Multi-language support
-
-
-## 👥 Authors
-
-- **Your Name** - [GitHub Profile](https://github.com/rajshekarparigi)
-
-## 🙏 Acknowledgments
-
-- Thanks to all contributors who have helped shape CityServe
-- Inspired by the need for better citizen-government communication
-- Built with modern web technologies for scalability and performance
-- Special thanks to the open-source community for amazing tools and libraries
+- **Rajshekar Parigi** - [GitHub Profile](https://github.com/rajshekarparigi)
 
 ## 📧 Contact
 
-For questions or support, please reach out:
+For questions or support:
 - Email: rajashekarmudiraj043@gmail.com
-- GitHub: [@yourusername](https://cityserve-client.onrender.com/)
-- Website: [cityserve.com]()
-
-
+- GitHub: [@rajshekarparigi](https://github.com/rajshekarparigi)
 
 ---
 
