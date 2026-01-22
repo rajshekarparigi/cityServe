@@ -47,7 +47,6 @@ exports.register = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Register error:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -104,7 +103,6 @@ exports.login = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Login error:', error);
     res.status(400).json({
       success: false,
       message: error.message
@@ -124,7 +122,6 @@ exports.getMe = async (req, res) => {
       data: user
     });
   } catch (error) {
-    console.error('GetMe error:', error);
     res.status(400).json({
       success: false,
       message: error.message
