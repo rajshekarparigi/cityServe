@@ -59,14 +59,6 @@ cd server
 npm install
 ```
 
-Create a `.env` file in the server directory:
-```env
-PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret_key
-NODE_ENV=development
-```
-
 Start the backend server:
 ```bash
 npm start
@@ -78,17 +70,10 @@ cd client
 npm install
 ```
 
-Create a `.env` file in the client directory:
-```env
-REACT_APP_API_URL=http://localhost:5000/api
-```
-
 Start the frontend development server:
 ```bash
 npm start
 ```
-
-The application should now be running at `http://localhost:3000`
 
 ## 📁 Project Structure
 
@@ -144,21 +129,6 @@ cityServe/
 3. Create Web Services for both frontend and backend
 4. Add environment variables in Render dashboard
 5. Deploy the services
-
-## 🔐 Environment Variables
-
-### Backend (.env)
-```env
-PORT=5000
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/cityserve
-JWT_SECRET=your_super_secret_jwt_key_here
-NODE_ENV=production
-```
-
-### Frontend (.env)
-```env
-REACT_APP_API_URL=https://your-backend-url.onrender.com/api
-```
 
 ## 📝 API Endpoints
 
